@@ -66,18 +66,6 @@ def candidate_dashboard():
         return render_template('candidate_dashboard.html', user=user)
     return redirect(url_for('login'))
 
-@app.route('/admin_dashboard')
-def admin_dashboard():
-    if 'user_id' in session and session['user_type'] == 'admin':
-        candidates = list(candidate_db.find())
-        batch_counts = {
-            "java_batch": candidate_db.count_documents({"batch": "java"}),
-            "data_engineer": candidate_db.count_documents({"batch": "data engineer"}),
-            ".net": candidate_db.count_documents({"batch": ".net"})
-        }
-        return render_template('admin_dashboard.html', candidates=candidates, batch_counts=batch_counts)
-    return redirect(url_for('login'))
-
 @app.route('/candidate_info', methods=['GET', 'POST'])
 def candidate_info():
     if 'user_id' in session and session['user_type'] == 'candidate':
@@ -130,8 +118,15 @@ def batch_allocation():
 def course_recommendations():
     if 'user_id' in session and session['user_type'] == 'candidate':
         user = candidate_db.find_one({'_id': ObjectId(session['user_id'])})
+        
+        # Check if the batch is allocated
+        batch = user.get('batch')
+        if not batch:
+            flash("Batch not allocated. Unable to generate recommendations.", 'warning')
+            return redirect(url_for('candidate_dashboard'))
+        
+        # Check if recommendations are already generated
         if not user.get('courses_allocated'):
-            batch = user.get('batch')
             try:
                 # Generate course and job role recommendations using Google Gemini
                 model = genai.GenerativeModel("gemini-1.5-flash")  # Specify the Gemini model
@@ -152,15 +147,16 @@ def course_recommendations():
                 candidate_update = {'$set': {'courses_allocated': courses}}
                 
                 # Update job_roles based on batch allocation
-                if batch:  # Check if batch is not empty
-                    if jobs:  # Check if jobs is not empty
-                        candidate_update['$set']['job_roles'] = jobs
+                if jobs:
+                    candidate_update['$set']['job_roles'] = jobs
 
                 candidate_db.update_one({'_id': ObjectId(session['user_id'])}, candidate_update)
             except Exception as e:
                 flash(f"Error generating recommendations: {e}", 'danger')
         
+        # Render recommendations template
         return render_template('course_recommendations.html', courses=user.get('courses_allocated'), jobs=user.get('job_roles'))
+    
     return redirect(url_for('login'))
 
 
