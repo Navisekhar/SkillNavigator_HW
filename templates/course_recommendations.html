@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Course Recommendations</h1>
+    {% if courses %}
+        <h2>Recommended Courses:</h2>
+        <ul>
+            {% for course in courses %}
+                <li>{{ course }}</li>
+            {% endfor %}
+        </ul>
+        <h2>Job Roles:</h2>
+        <ul>
+            {% for job in jobs %}
+                <li>{{ job }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No recommendations available.</p>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests and Scores</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Tests and Scores</h1>
+    <h2>Available Tests:</h2>
+    <form method="POST" id="testForm">
+        {% for question in test_questions %}
+            <p>{{ question['question'] }}</p>
+            {% for option in question['options'] %}
+                <label>
+                    <input type="radio" name="{{ question['id'] }}" value="{{ option }}">
+                    {{ option }}
+                </label>
+            {% endfor %}
+        {% endfor %}
+        <button type="submit">Submit Answers</button>
+    </form>
+    <button onclick="document.location.href='{{ url_for('candidate_dashboard') }}'">Back to Dashboard</button>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Welcome, {{ user['username'] }}</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('candidate_dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('candidate_info') }}">Candidate Info</a></li>
+            <li><a href="{{ url_for('batch_allocation') }}">Batch Allocation</a></li>
+            <li><a href="{{ url_for('course_recommendations') }}">Course Recommendations</a></li>
+            <li><a href="{{ url_for('tests_and_scores') }}">Tests and Scores</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    <div>
+        <h2>Batch Allocation: {{ user.get('batch', 'Not Allocated') }}</h2>
+        <h3>Test Scores</h3>
+        <div id="testScores"></div>
+        <button onclick="document.location.href='{{ url_for('candidate_info') }}'">Click here to fill your Candidate Info</button>
+    </div>
+</body>
+</html>

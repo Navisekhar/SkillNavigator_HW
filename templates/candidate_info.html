@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Info</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Candidate Info</h1>
+    <form method="POST">
+        <label for="name">Name:</label>
+        <input type="text" name="name" required>
+        <label for="email">Email ID:</label>
+        <input type="email" name="email" required>
+        <label for="degree">Degree:</label>
+        <input type="text" name="degree" required>
+        <label for="specialization">Specialization:</label>
+        <input type="text" name="specialization" required>
+        <label for="phone">Phone Number:</label>
+        <input type="text" name="phone" required>
+        <label for="certifications">Certifications:</label>
+        <select name="certifications" required>
+            <option value="Java and AWS">Java and AWS</option>
+            <option value=".NET and Azure">.NET and Azure</option>
+            <option value="Python and SQL">Python and SQL</option>
+        </select>
+        <label for="internship_details">Internship Details:</label>
+        <textarea name="internship_details"></textarea>
+        <label for="courses_completed">Courses Completed:</label>
+        <textarea name="courses_completed"></textarea>
+        <label for="linkedin">LinkedIn Profile Link:</label>
+        <input type="url" name="linkedin">
+        <label for="github">GitHub Profile Link:</label>
+        <input type="url" name="github">
+        <label for="languages">Programming Languages Known:</label>
+        <input type="text" name="languages">
+        <label for="resume">Resume:</label>
+        <input type="file" name="resume" required>
+        <button type="submit">Save Info</button>
+    </form>
+</body>
+</html>
