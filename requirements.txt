@@ -4,3 +4,4 @@ pymongo==3.12.1
 python-dotenv==0.20.0
 bson==0.5.10  # Only needed if you're not using pymongo
 google-generativeai  # You might need to specify a version if available
+werkzeug==2.0.3
