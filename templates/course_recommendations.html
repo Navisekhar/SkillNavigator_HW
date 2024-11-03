@@ -4,25 +4,196 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Recommendations</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #10a37f;
+            --secondary-color: #f7f7f8;
+            --text-color: #333;
+            --background-color: #ffffff;
+            --card-background: #f0f4f8;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --input-border: #e5e5e5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        li:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px var(--shadow-color);
+        }
+
+        .job-roles-container {
+            background-color: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        .job-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .job-table th, .job-table td {
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        .job-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .job-table tr {
+            background-color: var(--background-color);
+            box-shadow: 0 2px 4px var(--shadow-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .job-table tr:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        .job-table td:first-child, .job-table th:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .job-table td:last-child, .job-table th:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #777;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            margin-top: 2rem;
+        }
+
+        .back-button:hover {
+            background-color: #0d8a6f;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            li, .job-table th, .job-table td {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Course Recommendations</h1>
-    {% if courses %}
-        <h2>Recommended Courses:</h2>
-        <ul>
-            {% for course in courses %}
-                <li>{{ course }}</li>
-            {% endfor %}
-        </ul>
-        <h2>Job Roles:</h2>
-        <ul>
-            {% for job in jobs %}
-                <li>{{ job }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No recommendations available.</p>
-    {% endif %}
+    <div class="container">
+        <h1>Course Recommendations</h1>
+        
+        {% if courses %}
+            <h2>Recommended Courses</h2>
+            <ul>
+                {{ courses|safe }}
+            </ul>
+            
+            <h2>Job Roles</h2>
+            <div class="job-roles-container">
+                <table class="job-table">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ jobs|safe }}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No recommendations available at the moment. Please check back later or adjust your preferences.</p>
+        {% endif %}
+
+        <a href="{{ url_for('candidate_dashboard') }}" class="back-button">Back to Dashboard</a>
+    </div>
 </body>
 </html>

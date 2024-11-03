@@ -4,25 +4,306 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidate Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #10a37f;
+            --secondary-color: #f7f7f8;
+            --text-color: #333;
+            --background-color: #ffffff;
+            --nav-background: #202123;
+            --nav-text: #ffffff;
+            --chatbot-bg: #ffffff;
+            --user-message-bg: #f7f7f8;
+            --bot-message-bg: #ffffff;
+            --input-border: #e5e5e5;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        nav {
+            background-color: var(--nav-background);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 1rem;
+        }
+
+        nav ul li a {
+            color: var(--nav-text);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .card p {
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        #testScores {
+            margin-top: 1rem;
+        }
+
+        .info-button {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            margin-top: 1rem;
+        }
+
+        .info-button:hover {
+            background-color: #0d8a6f;
+        }
+
+        /* Chatbot styles */
+        #chatbot {
+            width: 100%;
+            max-width: 600px;
+            margin: 2rem auto;
+            border: 1px solid var(--input-border);
+            background-color: var(--chatbot-bg);
+            box-shadow: 0 2px 10px var(--shadow-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #chatbot-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #chatbot-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-message-bg);
+        }
+
+        .chatbot-message {
+            align-self: flex-start;
+            background-color: var(--bot-message-bg);
+            border: 1px solid var(--input-border);
+        }
+
+        #chatbot-input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--input-border);
+        }
+
+        #chatbot-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #chatbot-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                margin: 0.5rem 0;
+            }
+
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+
+            #chatbot {
+                width: 90%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome, {{ user['username'] }}</h1>
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('candidate_dashboard') }}">Home</a></li>
-            <li><a href="{{ url_for('candidate_info') }}">Candidate Info</a></li>
-            <li><a href="{{ url_for('batch_allocation') }}">Batch Allocation</a></li>
-            <li><a href="{{ url_for('course_recommendations') }}">Course Recommendations</a></li>
-            <li><a href="{{ url_for('tests_and_scores') }}">Tests and Scores</a></li>
-            <li><a href="{{ url_for('logout') }}">Logout</a></li>
-        </ul>
-    </nav>
-    <div>
-        <h2>Batch Allocation: {{ user.get('batch', 'Not Allocated') }}</h2>
-        <h3>Test Scores</h3>
-        <div id="testScores"></div>
-        <button onclick="document.location.href='{{ url_for('candidate_info') }}'">Click here to fill your Candidate Info</button>
+    <div class="container">
+        <h1>Welcome, {{ user['username'] }}</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('candidate_dashboard') }}">Home</a></li>
+                <li><a href="{{ url_for('candidate_info') }}">Candidate Info</a></li>
+                <li><a href="{{ url_for('batch_allocation') }}">Batch Allocation</a></li>
+                <li><a href="{{ url_for('course_recommendations') }}">Course Recommendations</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+        <div class="dashboard-content">
+            <div class="card">
+                <h2>Batch Allocation</h2>
+                <p>{{ user.get('batch', 'Not Allocated') }}</p>
+            </div>
+            <div class="card">
+                <h2>Specializations</h2>
+                <p>AI and DS</p>
+            </div>
+            <div class="card">
+                <h2>Certifications</h2>
+                <p>.NET and Azure</p>
+            </div>
+            
+            {% if not user.get('name', False) %}
+                <a href="{{ url_for('candidate_info') }}" class="info-button">
+                    Click here to fill your Candidate Info
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Chatbot HTML -->
+        <div id="chatbot">
+            <div id="chatbot-header">Chat with AI</div>
+            <div id="chatbot-messages"></div>
+            <div id="chatbot-input-container">
+                <input type="text" id="chatbot-input" placeholder="Type your message...">
+                <button id="chatbot-submit">Send</button>
+            </div>
+        </div>
     </div>
+    
+    <script>
+        $(document).ready(function() {
+            function sendMessage() {
+                const userInput = $('#chatbot-input').val();
+                if (userInput.trim() === '') return;
+
+                $('#chatbot-input').val('');
+                $('#chatbot-messages').append('<div class="message user-message">' + escapeHtml(userInput) + '</div>');
+
+                $.post('/chatbot', { message: userInput }, function(response) {
+                    $('#chatbot-messages').append('<div class="message chatbot-message">' + formatResponse(response) + '</div>');
+                    $('#chatbot-messages').scrollTop($('#chatbot-messages')[0].scrollHeight);
+                });
+            }
+
+            $('#chatbot-input').on('keypress', function(e) {
+                if (e.which == 13) {
+                    sendMessage();
+                }
+            });
+
+            $('#chatbot-submit').on('click', sendMessage);
+
+            function escapeHtml(html) {
+                return html.replace(/&/g, "&amp;")
+                           .replace(/</g, "&lt;")
+                           .replace(/>/g, "&gt;")
+                           .replace(/"/g, "&quot;")
+                           .replace(/'/g, "&#039;");
+            }
+
+            function formatResponse(response) {
+                return response
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/(\d+\.\s)/g, '<li>$1</li>')
+                    .replace(/(\n|<br>)/g, '<br>');
+            }
+        });
+    </script>
 </body>
 </html>

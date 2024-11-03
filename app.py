@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask import Flask, render_template, redirect, url_for, request, session, flash,  jsonify
 from flask_bcrypt import Bcrypt
 from pymongo import MongoClient
 from bson import ObjectId
@@ -17,6 +17,8 @@ mongodb_uri = os.getenv("MONGO_URI")
 client = MongoClient(mongodb_uri)
 candidate_db = client['skillnavigator']['candidate']
 admin_db = client['skillnavigator']['admin']
+questions_collection = client['skillnavigator']['test_questions']
+
 # Configure Google Generative AI
 genai.configure(api_key=os.getenv("GOOGLE_GEN_AI_API_KEY"))
 
@@ -91,13 +93,17 @@ def candidate_info():
                 "courses_completed": request.form['courses_completed'],
                 "linkedin": request.form['linkedin'],
                 "github": request.form['github'],
-                "languages": request.form['languages'],
-                "resume": request.form['resume']
+                "languages": request.form['languages']
             }
             candidate_db.update_one({'_id': ObjectId(session['user_id'])}, {'$set': candidate_info})
             flash('Information saved successfully.', 'success')
-            return redirect(url_for('candidate_dashboard'))
-        return render_template('candidate_info.html')
+            # Redirect to the same page to display the updated info
+            return redirect(url_for('candidate_info'))
+        
+        # GET request: fetch the candidate information to display in the form
+        user = candidate_db.find_one({'_id': ObjectId(session['user_id'])})
+        return render_template('candidate_info.html', user=user)
+    
     return redirect(url_for('login'))
 
 @app.route('/batch_allocation')
@@ -132,53 +138,52 @@ def course_recommendations():
                 
                 # Course recommendations
                 response_courses = model.generate_content(
-                    f"Recommend online courses including YouTube courses for {batch} without links. Provide a list of 6 famous courses from the internet in bullet points in HTML format."
+                    f"Recommend online courses including YouTube courses for {batch} without links. Provide a list of 5 famous courses from the internet in bullet points in HTML format."
                 )
                 courses = response_courses.text.strip()
 
                 # Job role recommendations
                 response_jobs = model.generate_content(
-                    f"What job roles are suitable for someone skilled in {batch}? Provide a list of 6 job roles and descriptions in HTML table format."
+                    f"What job roles are suitable for someone skilled in {batch}? Provide a list of 5 job roles and descriptions in HTML table format."
                 )
                 jobs = response_jobs.text.strip()
 
                 # Update user document with recommendations
-                candidate_db.update_one({'_id': ObjectId(session['user_id'])}, {'$set': {'courses_allocated': courses, 'job_roles': jobs}})
+                candidate_update = {'$set': {'courses_allocated': courses}}
+                
+                # Update job_roles based on batch allocation
+                if batch:  # Check if batch is not empty
+                    if jobs:  # Check if jobs is not empty
+                        candidate_update['$set']['job_roles'] = jobs
+
+                candidate_db.update_one({'_id': ObjectId(session['user_id'])}, candidate_update)
             except Exception as e:
                 flash(f"Error generating recommendations: {e}", 'danger')
         
         return render_template('course_recommendations.html', courses=user.get('courses_allocated'), jobs=user.get('job_roles'))
     return redirect(url_for('login'))
 
-@app.route('/tests_and_scores')
-def tests_and_scores():
-    if 'user_id' in session and session['user_type'] == 'candidate':
-        user = candidate_db.find_one({'_id': ObjectId(session['user_id'])})
-        batch = user.get('batch')
-        test_questions = []
-        if batch:
-            try:
-                # Generate test questions using Google Gemini
-                model = genai.GenerativeModel("gemini-1.5-flash")  # Specify the Gemini model
-                
-                response_tests = model.generate_content(
-                    f"Generate 15 test questions for the {batch} batch."
-                )
-                test_questions = response_tests.text.strip().split('\n')  # Assuming questions are separated by new lines
 
-                # You might want to save or process the scores here
-                # e.g., candidate_db.update_one({'_id': ObjectId(session['user_id'])}, {'$set': {'scores': new_scores}})
-            except Exception as e:
-                flash(f"Error generating test questions: {e}", 'danger')
-        
-        return render_template('tests_and_scores.html', test_questions=test_questions, scores=user.get('scores', []))
-    return redirect(url_for('login'))
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    user_message = request.form['message']
 
-# Logout Route
+    # Directly use the user message as the prompt for the model
+    prompt = user_message
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    # Generate response from the model
+    response = model.generate_content(prompt)
+    response_text = response.text.strip()
+
+    return jsonify(response_text)
+
+
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('landing'))
 
 if __name__ == '__main__':
     app.run(debug=True)

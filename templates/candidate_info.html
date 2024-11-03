@@ -3,41 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidate Info</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Candidate Information</title>
+    <style>
+        :root {
+            --primary-color: #10a37f;
+            --secondary-color: #f7f7f8;
+            --text-color: #333;
+            --background-color: #ffffff;
+            --input-border: #e5e5e5;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--secondary-color);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        form {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0d8a6f;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        /* Loading Animation Styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s linear;
+        }
+
+        .loading-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--secondary-color);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            form {
+                gap: 1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Candidate Info</h1>
-    <form method="POST">
-        <label for="name">Name:</label>
-        <input type="text" name="name" required>
-        <label for="email">Email ID:</label>
-        <input type="email" name="email" required>
-        <label for="degree">Degree:</label>
-        <input type="text" name="degree" required>
-        <label for="specialization">Specialization:</label>
-        <input type="text" name="specialization" required>
-        <label for="phone">Phone Number:</label>
-        <input type="text" name="phone" required>
-        <label for="certifications">Certifications:</label>
-        <select name="certifications" required>
-            <option value="Java and AWS">Java and AWS</option>
-            <option value=".NET and Azure">.NET and Azure</option>
-            <option value="Python and SQL">Python and SQL</option>
-        </select>
-        <label for="internship_details">Internship Details:</label>
-        <textarea name="internship_details"></textarea>
-        <label for="courses_completed">Courses Completed:</label>
-        <textarea name="courses_completed"></textarea>
-        <label for="linkedin">LinkedIn Profile Link:</label>
-        <input type="url" name="linkedin">
-        <label for="github">GitHub Profile Link:</label>
-        <input type="url" name="github">
-        <label for="languages">Programming Languages Known:</label>
-        <input type="text" name="languages">
-        <label for="resume">Resume:</label>
-        <input type="file" name="resume" required>
-        <button type="submit">Save Info</button>
-    </form>
+    <div class="container">
+        <h1>Candidate Information</h1>
+        <form method="POST" id="candidateForm">
+            <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ user.get('name', '') }}" required>
+            </div>
+
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ user.get('email', '') }}" required>
+            </div>
+
+            <div>
+                <label for="degree">Degree:</label>
+                <input type="text" id="degree" name="degree" value="{{ user.get('degree', '') }}">
+            </div>
+
+            <div>
+                <label for="specialization">Specialization:</label>
+                <input type="text" id="specialization" name="specialization" value="{{ user.get('specialization', '') }}">
+            </div>
+
+            <div>
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone" value="{{ user.get('phone', '') }}">
+            </div>
+
+            <div>
+                <label for="certifications">Certifications:</label>
+                <select id="certifications" name="certifications" required>
+                    <option value="Java and AWS" {% if user.get('certifications') == 'Java and AWS' %}selected{% endif %}>Java and AWS</option>
+                    <option value=".NET and Azure" {% if user.get('certifications') == '.NET and Azure' %}selected{% endif %}>.NET and Azure</option>
+                    <option value="Python and SQL" {% if user.get('certifications') == 'Python and SQL' %}selected{% endif %}>Python and SQL</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="internship_details">Internship Details:</label>
+                <textarea id="internship_details" name="internship_details">{{ user.get('internship_details', '') }}</textarea>
+            </div>
+
+            <div>
+                <label for="courses_completed">Courses Completed:</label>
+                <textarea id="courses_completed" name="courses_completed">{{ user.get('courses_completed', '') }}</textarea>
+            </div>
+
+            <div>
+                <label for="linkedin">LinkedIn:</label>
+                <input type="url" id="linkedin" name="linkedin" value="{{ user.get('linkedin', '') }}">
+            </div>
+
+            <div>
+                <label for="github">GitHub:</label>
+                <input type="url" id="github" name="github" value="{{ user.get('github', '') }}">
+            </div>
+
+            <div>
+                <label for="languages">Languages:</label>
+                <input type="text" id="languages" name="languages" value="{{ user.get('languages', '') }}">
+            </div>
+
+            <div class="button-group">
+                {% if not user.get('name', False) %}
+                    <button type="submit">Save Information</button>
+                {% endif %}
+                <button type="button" onclick="document.location.href='{{ url_for('candidate_dashboard') }}'">Back to Dashboard</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+        <div class="spinner" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('candidateForm');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                showLoading();
+
+                // Simulate form submission (replace with actual AJAX call)
+                setTimeout(function() {
+                    hideLoading();
+                    form.submit(); // Actually submit the form
+                }, 2000);
+            });
+
+            function showLoading() {
+                loadingOverlay.classList.add('active');
+                loadingOverlay.setAttribute('aria-hidden', 'false');
+            }
+
+            function hideLoading() {
+                loadingOverlay.classList.remove('active');
+                loadingOverlay.setAttribute('aria-hidden', 'true');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -3,13 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Page</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Skill Navigator - Your Path to Success</title>
+    <style>
+        :root {
+            --primary-color: #0d8a6f;
+            --secondary-color: #0a6f5a;
+            --background-color: #f3f4f6;
+            --text-color: #1f2937;
+            --accent-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .features {
+            padding: 4rem 2rem;
+            background: white;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--background-color);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-color);
+        }
+
+        .cta {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: var(--background-color);
+        }
+
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .footer {
+            background: var(--text-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Skill Navigator</h1>
-    <p>Your one-stop solution for career guidance.</p>
-    <a href="{{ url_for('signup') }}">Sign Up</a>
-    <a href="{{ url_for('login') }}">Login</a>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">Skill Navigator</div>
+            <div class="nav-links">
+                <a href="{{ url_for('login') }}" class="btn btn-outline">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Navigate Your Career Path to Success</h1>
+            <p>Join our platform to enhance your skills, track your progress, and achieve your career goals with personalized learning paths.</p>
+            <a href="{{ url_for('signup') }}" class="btn btn-primary">Get Started</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Personalized Learning</h3>
+                <p>Get customized learning paths based on your skills and career goals.</p>
+            </div>
+            <div class="feature-card">
+                <h3>AI Guidance </h3>
+                <p>AI suggest Courses and Roles and clarify your Doubts.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>Batch Allocation</h3>
+                <p>Join training batches that match your skill level and interests.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>Ready to Start Your Journey?</h2>
+        <p>Join thousands of learners who have transformed their careers with Skill Navigator.</p>
+        <div style="margin-top: 2rem;">
+            <a href="{{ url_for('signup') }}" class="btn btn-primary">Sign Up Now</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2023 Skill Navigator. All rights reserved.</p>
+    </footer>
 </body>
 </html>
