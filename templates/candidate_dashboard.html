@@ -240,11 +240,11 @@
             </div>
             <div class="card">
                 <h2>Specializations</h2>
-                <p>AI and DS</p>
+                <p>{{ user['specialization'] }}</p>
             </div>
             <div class="card">
                 <h2>Certifications</h2>
-                <p>.NET and Azure</p>
+                <p>{{ user['certifications'] }}</p>
             </div>
             
             {% if not user.get('name', False) %}
